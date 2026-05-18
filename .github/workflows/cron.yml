@@ -2,9 +2,9 @@ name: Cron Jobs
 
 on:
   schedule:
-    - cron: '*/30 * * * *'   # scan every 30 min
-    - cron: '0 3 * * 1-5'    # followups daily 9am IST (3am UTC) Mon–Fri
-  workflow_dispatch:          # allow manual trigger from GitHub UI
+    - cron: '*/30 * * * *'
+    - cron: '0 3 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   scan:
@@ -14,9 +14,11 @@ jobs:
     steps:
       - name: Trigger scan
         run: |
-          curl -s -o /dev/null -w "scan: %{http_code}\n" \
+          RESPONSE=$(curl -s -w "\nHTTP:%{http_code}" \
             -X GET "${{ secrets.VERCEL_APP_URL }}/api/cron/scan" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q "HTTP:200" || exit 1
 
   followups:
     name: Follow-up Reminders
@@ -25,6 +27,8 @@ jobs:
     steps:
       - name: Trigger followups
         run: |
-          curl -s -o /dev/null -w "followups: %{http_code}\n" \
+          RESPONSE=$(curl -s -w "\nHTTP:%{http_code}" \
             -X GET "${{ secrets.VERCEL_APP_URL }}/api/cron/followups" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q "HTTP:200" || exit 1
