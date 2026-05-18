@@ -1,0 +1,30 @@
+name: Cron Jobs
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # scan every 30 min
+    - cron: '0 3 * * 1-5'    # followups daily 9am IST (3am UTC) Mon–Fri
+  workflow_dispatch:          # allow manual trigger from GitHub UI
+
+jobs:
+  scan:
+    name: Scan Upwork
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '*/30 * * * *' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Trigger scan
+        run: |
+          curl -s -o /dev/null -w "scan: %{http_code}\n" \
+            -X GET "${{ secrets.VERCEL_APP_URL }}/api/cron/scan" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+
+  followups:
+    name: Follow-up Reminders
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 3 * * 1-5' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Trigger followups
+        run: |
+          curl -s -o /dev/null -w "followups: %{http_code}\n" \
+            -X GET "${{ secrets.VERCEL_APP_URL }}/api/cron/followups" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -2,10 +2,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "crons": [
-    { "path": "/api/cron/scan",      "schedule": "*/30 * * * *" },
-    { "path": "/api/cron/followups", "schedule": "0 9 * * 1-5"  }
-  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
