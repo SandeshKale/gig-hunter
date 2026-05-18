@@ -1,0 +1,22 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface2: #22263a;
+  --border: #2e3348;
+  --text: #e8ecf0;
+  --text2: #9aacbe;
+  --text3: #627a90;
+  --primary: #4a7fc1;
+  --success: #4caf80;
+  --warning: #f0a050;
+  --error: #f87171;
+  --gold: #f5c842;
+  --radius: 8px;
+  --font: system-ui, -apple-system, sans-serif;
+}
+
+html { -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
