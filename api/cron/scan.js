@@ -1,4 +1,4 @@
-import { scanUpwork } from '../../lib/upwork.js';
+import { scanAll } from '../../lib/scanner.js';
 import { upsertJob } from '../../lib/supabase.js';
 import { notifyNewJob } from '../../lib/telegram.js';
 
@@ -8,10 +8,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const results = { scanned: 0, passed_budget: 0, new: 0, notified: 0, errors: [] };
+  const results = { scanned: 0, new: 0, notified: 0, errors: [] };
 
   try {
-    const jobs = await scanUpwork();
+    const jobs = await scanAll();
     results.scanned = jobs.length;
 
     for (const job of jobs) {
