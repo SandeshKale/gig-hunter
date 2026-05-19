@@ -35,6 +35,17 @@ function timeAgo(iso) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+function ScoreBadge({ score }) {
+  const s = score ?? 0;
+  const color = s >= 70 ? '#4caf80' : s >= 50 ? '#f0a050' : '#627a90';
+  const label = s >= 70 ? '🔥' : s >= 50 ? '🆕' : '';
+  return (
+    <span style={{ fontWeight: 700, color, fontSize: '0.75rem' }}>
+      {label} {s}/100
+    </span>
+  );
+}
+
 function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -50,11 +61,6 @@ function CopyBtn({ text }) {
   );
 }
 
-function scoreDisplay(score) {
-  const color = score >= 70 ? '#4caf80' : score >= 50 ? '#f0a050' : '#627a90';
-  return React.createElement('span', { style: { fontWeight: 700, color } }, (score ?? '—') + '/100');
-}
-
 function JobCard({ job, onStatus }) {
   const [open, setOpen] = useState(false);
   const actions = STATUS_ACTIONS[job.status] || [];
@@ -62,11 +68,12 @@ function JobCard({ job, onStatus }) {
     ? job.budget_type === 'hourly'
       ? `$${job.budget_min}–${job.budget_max ?? '?'}/hr`
       : `$${Number(job.budget_min).toLocaleString()} fixed`
-    : 'Budget TBD';
+    : 'Remote · Salary TBD';
 
   return (
     <div style={{ background: 'var(--surface)', border: '1px solid var(--border)',
       borderRadius: 'var(--radius)', padding: '12px', marginBottom: 8 }}>
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -74,14 +81,25 @@ function JobCard({ job, onStatus }) {
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {job.title}
           </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text3)', marginTop: 2 }}>
-            {budget} · {scoreDisplay(job.relevance_score)} · {timeAgo(job.created_at)}
+          <div style={{ fontSize: '0.72rem', color: 'var(--text3)', marginTop: 3, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <span>{budget}</span>
+            <ScoreBadge score={job.relevance_score} />
+            <span>{job.location || ''}</span>
+            <span>{timeAgo(job.created_at)}</span>
           </div>
         </div>
         <a href={job.url} target="_blank" rel="noreferrer"
           style={{ color: 'var(--text3)', flexShrink: 0 }}>
           <ExternalLink size={13} />
         </a>
+      </div>
+
+      {/* Platform badge */}
+      <div style={{ marginTop: 6 }}>
+        <span style={{ fontSize: '0.65rem', background: 'var(--surface2)', border: '1px solid var(--border)',
+          borderRadius: 100, padding: '2px 8px', color: 'var(--text3)' }}>
+          {job.platform || 'remote'}
+        </span>
       </div>
 
       {/* Skills */}
@@ -103,7 +121,7 @@ function JobCard({ job, onStatus }) {
             style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none',
               color: 'var(--primary)', fontSize: '0.72rem', fontWeight: 600 }}>
             {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-            Proposal draft
+            {job.relevance_score >= 70 ? '🔥 Proposal draft' : '💡 Angle'}
           </button>
           {open && (
             <div style={{ marginTop: 6, padding: 10, background: 'var(--surface2)',
@@ -138,14 +156,14 @@ function JobCard({ job, onStatus }) {
 }
 
 export default function App() {
-  const [jobs, setJobs]     = useState([]);
+  const [jobs, setJobs]       = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCol, setActiveCol] = useState('new');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/jobs');
+      const res  = await fetch('/api/jobs');
       const { jobs: data } = await res.json();
       setJobs(data || []);
     } catch { /* ignore */ }
@@ -168,7 +186,8 @@ export default function App() {
     return acc;
   }, {});
 
-  const visible = jobs.filter((j) => j.status === activeCol)
+  const visible = jobs
+    .filter((j) => j.status === activeCol)
     .sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
 
   return (
@@ -177,7 +196,9 @@ export default function App() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>🎯 Gig Hunter</div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text3)' }}>Upwork pipeline</div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text3)' }}>
+            {jobs.length} jobs · {jobs.filter(j => j.relevance_score >= 70).length} hot
+          </div>
         </div>
         <button onClick={load} style={{ background: 'var(--surface)', border: '1px solid var(--border)',
           borderRadius: 8, padding: '6px 10px', color: 'var(--text2)' }}>
