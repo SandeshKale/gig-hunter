@@ -50,6 +50,11 @@ function CopyBtn({ text }) {
   );
 }
 
+function scoreDisplay(score) {
+  const color = score >= 70 ? '#4caf80' : score >= 50 ? '#f0a050' : '#627a90';
+  return React.createElement('span', { style: { fontWeight: 700, color } }, (score ?? '—') + '/100');
+}
+
 function JobCard({ job, onStatus }) {
   const [open, setOpen] = useState(false);
   const actions = STATUS_ACTIONS[job.status] || [];
@@ -70,7 +75,7 @@ function JobCard({ job, onStatus }) {
             {job.title}
           </div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text3)', marginTop: 2 }}>
-            {budget} · {'⭐'.repeat(Math.min(job.relevance_score || 0, 5))} · {timeAgo(job.created_at)}
+            {budget} · {scoreDisplay(job.relevance_score)} · {timeAgo(job.created_at)}
           </div>
         </div>
         <a href={job.url} target="_blank" rel="noreferrer"

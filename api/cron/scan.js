@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const results = { scanned: 0, new: 0, notified: 0, errors: [] };
+  const results = { scanned: 0, saved: 0, notified_hot: 0, notified_new: 0, excluded: 0, errors: [] };
 
   try {
     const jobs = await scanAll();
@@ -18,10 +18,12 @@ export default async function handler(req, res) {
       try {
         const saved = await upsertJob(job);
         if (saved) {
-          results.new += 1;
-          if (job.relevance_score >= 4) {
+          results.saved += 1;
+          // Only alert for score >= 50 (tier = 'full' or 'angle')
+          if (job.relevance_score >= 50) {
             await notifyNewJob({ ...job, id: saved.id });
-            results.notified += 1;
+            if (job.relevance_score >= 70) results.notified_hot += 1;
+            else results.notified_new += 1;
           }
         }
       } catch (err) {
