@@ -1,4 +1,10 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --bg: #0f1117;
@@ -17,6 +23,18 @@
   --font: system-ui, -apple-system, sans-serif;
 }
 
-html { -webkit-font-smoothing: antialiased; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
-button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+html {
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+button {
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}

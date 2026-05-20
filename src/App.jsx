@@ -2,28 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, ExternalLink, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 const COLUMNS = [
-  { id: 'new',     label: '🆕 New'     },
+  { id: 'new', label: '🆕 New' },
   { id: 'applied', label: '📤 Applied' },
   { id: 'replied', label: '💬 Replied' },
-  { id: 'won',     label: '🏆 Won'     },
-  { id: 'lost',    label: '❌ Lost'    },
+  { id: 'won', label: '🏆 Won' },
+  { id: 'lost', label: '❌ Lost' },
 ];
 
 const STATUS_ACTIONS = {
-  new:     ['applied', 'skip', 'lost'],
+  new: ['applied', 'skip', 'lost'],
   applied: ['replied', 'won', 'lost'],
   replied: ['won', 'lost'],
-  won:     [],
-  lost:    [],
-  skip:    [],
+  won: [],
+  lost: [],
+  skip: [],
 };
 
 const ACTION_LABELS = {
   applied: '📤 Applied',
   replied: '💬 Replied',
-  won:     '🏆 Won',
-  lost:    '❌ Lost',
-  skip:    '⏭ Skip',
+  won: '🏆 Won',
+  lost: '❌ Lost',
+  skip: '⏭ Skip',
 };
 
 function timeAgo(iso) {
@@ -50,10 +50,23 @@ function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
-      onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-      style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px',
-        background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 6,
-        color: copied ? 'var(--success)' : 'var(--primary)', fontSize: '0.72rem', fontWeight: 600 }}
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '3px 10px',
+        background: 'var(--surface2)',
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        color: copied ? 'var(--success)' : 'var(--primary)',
+        fontSize: '0.72rem',
+        fontWeight: 600,
+      }}
     >
       {copied ? <Check size={11} /> : <Copy size={11} />}
       {copied ? 'Copied' : 'Copy proposal'}
@@ -71,33 +84,75 @@ function JobCard({ job, onStatus }) {
     : 'Remote · Salary TBD';
 
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)',
-      borderRadius: 'var(--radius)', padding: '12px', marginBottom: 8 }}>
-
+    <div
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)',
+        padding: '12px',
+        marginBottom: 8,
+      }}
+    >
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 8,
+        }}
+      >
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text)',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div
+            style={{
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              color: 'var(--text)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {job.title}
           </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text3)', marginTop: 3, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div
+            style={{
+              fontSize: '0.72rem',
+              color: 'var(--text3)',
+              marginTop: 3,
+              display: 'flex',
+              gap: 8,
+              flexWrap: 'wrap',
+            }}
+          >
             <span>{budget}</span>
             <ScoreBadge score={job.relevance_score} />
             <span>{job.location || ''}</span>
             <span>{timeAgo(job.created_at)}</span>
           </div>
         </div>
-        <a href={job.url} target="_blank" rel="noreferrer"
-          style={{ color: 'var(--text3)', flexShrink: 0 }}>
+        <a
+          href={job.url}
+          target="_blank"
+          rel="noreferrer"
+          style={{ color: 'var(--text3)', flexShrink: 0 }}
+        >
           <ExternalLink size={13} />
         </a>
       </div>
 
       {/* Platform badge */}
       <div style={{ marginTop: 6 }}>
-        <span style={{ fontSize: '0.65rem', background: 'var(--surface2)', border: '1px solid var(--border)',
-          borderRadius: 100, padding: '2px 8px', color: 'var(--text3)' }}>
+        <span
+          style={{
+            fontSize: '0.65rem',
+            background: 'var(--surface2)',
+            border: '1px solid var(--border)',
+            borderRadius: 100,
+            padding: '2px 8px',
+            color: 'var(--text3)',
+          }}
+        >
           {job.platform || 'remote'}
         </span>
       </div>
@@ -106,8 +161,17 @@ function JobCard({ job, onStatus }) {
       {(job.skills || []).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
           {job.skills.slice(0, 5).map((s) => (
-            <span key={s} style={{ fontSize: '0.65rem', background: 'var(--surface2)',
-              border: '1px solid var(--border)', borderRadius: 100, padding: '2px 7px', color: 'var(--text3)' }}>
+            <span
+              key={s}
+              style={{
+                fontSize: '0.65rem',
+                background: 'var(--surface2)',
+                border: '1px solid var(--border)',
+                borderRadius: 100,
+                padding: '2px 7px',
+                color: 'var(--text3)',
+              }}
+            >
               {s}
             </span>
           ))}
@@ -117,17 +181,40 @@ function JobCard({ job, onStatus }) {
       {/* Proposal (expandable) */}
       {job.proposal && (
         <div style={{ marginTop: 8 }}>
-          <button onClick={() => setOpen(!open)}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none',
-              color: 'var(--primary)', fontSize: '0.72rem', fontWeight: 600 }}>
+          <button
+            onClick={() => setOpen(!open)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'none',
+              color: 'var(--primary)',
+              fontSize: '0.72rem',
+              fontWeight: 600,
+            }}
+          >
             {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             {job.relevance_score >= 70 ? '🔥 Proposal draft' : '💡 Angle'}
           </button>
           {open && (
-            <div style={{ marginTop: 6, padding: 10, background: 'var(--surface2)',
-              borderRadius: 6, border: '1px solid var(--border)' }}>
-              <pre style={{ fontSize: '0.75rem', color: 'var(--text2)', whiteSpace: 'pre-wrap',
-                fontFamily: 'inherit', lineHeight: 1.55 }}>
+            <div
+              style={{
+                marginTop: 6,
+                padding: 10,
+                background: 'var(--surface2)',
+                borderRadius: 6,
+                border: '1px solid var(--border)',
+              }}
+            >
+              <pre
+                style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text2)',
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'inherit',
+                  lineHeight: 1.55,
+                }}
+              >
                 {job.proposal}
               </pre>
               <div style={{ marginTop: 8 }}>
@@ -142,10 +229,19 @@ function JobCard({ job, onStatus }) {
       {actions.length > 0 && (
         <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
           {actions.map((a) => (
-            <button key={a} onClick={() => onStatus(job.id, a)}
-              style={{ fontSize: '0.7rem', fontWeight: 600, padding: '4px 10px',
-                borderRadius: 6, border: '1px solid var(--border)',
-                background: 'var(--surface2)', color: 'var(--text2)' }}>
+            <button
+              key={a}
+              onClick={() => onStatus(job.id, a)}
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                padding: '4px 10px',
+                borderRadius: 6,
+                border: '1px solid var(--border)',
+                background: 'var(--surface2)',
+                color: 'var(--text2)',
+              }}
+            >
               {ACTION_LABELS[a]}
             </button>
           ))}
@@ -156,21 +252,25 @@ function JobCard({ job, onStatus }) {
 }
 
 export default function App() {
-  const [jobs, setJobs]       = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCol, setActiveCol] = useState('new');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch('/api/jobs');
+      const res = await fetch('/api/jobs');
       const { jobs: data } = await res.json();
       setJobs(data || []);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleStatus = async (id, status) => {
     await fetch('/api/jobs', {
@@ -178,7 +278,7 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status }),
     });
-    setJobs((prev) => prev.map((j) => j.id === id ? { ...j, status } : j));
+    setJobs((prev) => prev.map((j) => (j.id === id ? { ...j, status } : j)));
   };
 
   const counts = COLUMNS.reduce((acc, col) => {
@@ -193,28 +293,56 @@ export default function App() {
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '16px 12px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+        }}
+      >
         <div>
           <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>🎯 Gig Hunter</div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text3)' }}>
-            {jobs.length} jobs · {jobs.filter(j => j.relevance_score >= 70).length} hot
+            {jobs.length} jobs · {jobs.filter((j) => j.relevance_score >= 70).length} hot
           </div>
         </div>
-        <button onClick={load} style={{ background: 'var(--surface)', border: '1px solid var(--border)',
-          borderRadius: 8, padding: '6px 10px', color: 'var(--text2)' }}>
-          <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+        <button
+          onClick={load}
+          style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 8,
+            padding: '6px 10px',
+            color: 'var(--text2)',
+          }}
+        >
+          <RefreshCw
+            size={14}
+            style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }}
+          />
         </button>
       </div>
 
       {/* Column tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 14, overflowX: 'auto' }}>
         {COLUMNS.map((col) => (
-          <button key={col.id} onClick={() => setActiveCol(col.id)}
-            style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 8, fontSize: '0.78rem',
-              fontWeight: 600, border: '1px solid var(--border)',
+          <button
+            key={col.id}
+            onClick={() => setActiveCol(col.id)}
+            style={{
+              flexShrink: 0,
+              padding: '6px 12px',
+              borderRadius: 8,
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              border: '1px solid var(--border)',
               background: activeCol === col.id ? 'var(--primary)' : 'var(--surface)',
-              color: activeCol === col.id ? '#fff' : 'var(--text2)' }}>
-            {col.label} {counts[col.id] > 0 && <span style={{ opacity: 0.75 }}>({counts[col.id]})</span>}
+              color: activeCol === col.id ? '#fff' : 'var(--text2)',
+            }}
+          >
+            {col.label}{' '}
+            {counts[col.id] > 0 && <span style={{ opacity: 0.75 }}>({counts[col.id]})</span>}
           </button>
         ))}
       </div>
@@ -227,9 +355,7 @@ export default function App() {
           No jobs in this column yet.
         </div>
       ) : (
-        visible.map((job) => (
-          <JobCard key={job.id} job={job} onStatus={handleStatus} />
-        ))
+        visible.map((job) => <JobCard key={job.id} job={job} onStatus={handleStatus} />)
       )}
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
