@@ -2,7 +2,6 @@ name: Cron Jobs
 
 on:
   schedule:
-    - cron: '*/5 * * * *'    # email scan every 5 min (Upwork alerts)
     - cron: '*/30 * * * *'   # full board scan every 30 min
     - cron: '0 3 * * 1-5'    # follow-up reminders 9am IST Mon–Fri
   workflow_dispatch:
@@ -12,24 +11,9 @@ on:
         required: false
         default: 'all'
         type: choice
-        options: [all, email-scan, scan, followups]
+        options: [all, scan, followups]
 
 jobs:
-  email-scan:
-    name: Upwork Email Scan
-    runs-on: ubuntu-latest
-    if: |
-      github.event.schedule == '*/5 * * * *' ||
-      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'all' || github.event.inputs.job == 'email-scan')
-    steps:
-      - name: Scan Upwork alert emails
-        run: |
-          RESPONSE=$(curl -s -w "\nHTTP:%{http_code}" \
-            -X GET "${{ secrets.VERCEL_APP_URL }}/api/cron/email-scan" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
-          echo "$RESPONSE"
-          echo "$RESPONSE" | grep -q "HTTP:200" || exit 1
-
   scan:
     name: Scan Job Boards
     runs-on: ubuntu-latest
