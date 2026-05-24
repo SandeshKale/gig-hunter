@@ -2,31 +2,49 @@
  * Standalone email scan script — runs directly in GitHub Actions.
  * Avoids Vercel's 10s function timeout entirely.
  *
- * Flow: Gmail IMAP → parse jobs → score → Groq proposal → Supabase → Telegram
+ * Flow:
+ *   1. Gmail IMAP → parse Upwork alert emails
+ *   2. If no emails found → fall back to Upwork direct search
+ *   3. Score + Groq proposal → Supabase → Telegram
  */
 
 import { scanUpworkEmails } from '../lib/gmailReader.js';
+import { scanUpworkSearch } from '../lib/upworkSearch.js';
 import { enrichAndScore } from '../lib/scanner.js';
 import { upsertJob } from '../lib/supabase.js';
 import { notifyNewJob } from '../lib/telegram.js';
 
 async function main() {
   console.log('[email-scan] starting', new Date().toISOString());
-  const results = { emails_found: 0, jobs_extracted: 0, saved: 0, notified: 0, errors: [] };
+  const results = { source: '', raw: 0, scored: 0, saved: 0, notified: 0, errors: [] };
 
   try {
-    const rawJobs = await scanUpworkEmails();
-    results.emails_found = rawJobs.length;
+    // 1. Try Gmail IMAP first
+    let rawJobs = await scanUpworkEmails();
 
     if (rawJobs.length === 0) {
-      console.log('[email-scan] no new Upwork emails — done');
+      // 2. Fallback: scrape Upwork search directly
+      console.log('[email-scan] no emails — falling back to Upwork direct search');
+      results.source = 'upwork-direct';
+      rawJobs = await scanUpworkSearch();
+    } else {
+      results.source = 'gmail';
+    }
+
+    results.raw = rawJobs.length;
+    console.log(`[email-scan] source=${results.source} raw=${rawJobs.length}`);
+
+    if (rawJobs.length === 0) {
+      console.log('[email-scan] nothing to process — done');
+      console.log('[email-scan]', JSON.stringify(results));
       return;
     }
 
-    console.log(`[email-scan] extracted ${rawJobs.length} jobs, scoring...`);
+    // 3. Score + generate proposals
     const enriched = await enrichAndScore(rawJobs);
-    results.jobs_extracted = enriched.length;
+    results.scored = enriched.length;
 
+    // 4. Save + notify
     for (const job of enriched) {
       try {
         const saved = await upsertJob(job);
@@ -49,7 +67,7 @@ async function main() {
 
   console.log('[email-scan] done', JSON.stringify(results));
   if (results.errors.length > 0) {
-    console.error('[email-scan] errors:', results.errors);
+    console.error('[email-scan] errors:', results.errors.join('\n'));
   }
 }
 
