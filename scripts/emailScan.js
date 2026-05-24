@@ -9,6 +9,14 @@
  */
 
 import { scanUpworkEmails } from '../lib/gmailReader.js';
+
+// Prevent unhandled socket errors from crashing the process
+process.on('uncaughtException', (err) => {
+  console.error('[email-scan] uncaught exception (continuing):', err.message);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[email-scan] unhandled rejection (continuing):', reason?.message || reason);
+});
 import { scanUpworkSearch } from '../lib/upworkSearch.js';
 import { enrichAndScore } from '../lib/scanner.js';
 import { upsertJob } from '../lib/supabase.js';
