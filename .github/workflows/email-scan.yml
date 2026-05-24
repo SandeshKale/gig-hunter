@@ -2,14 +2,14 @@ name: Upwork Email Scan
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
   email-scan:
     name: Parse Upwork Alert Emails
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8       # raised from 4 to 8
 
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +23,7 @@ jobs:
         run: npm ci
 
       - name: Scan Gmail + push jobs to Supabase
+        timeout-minutes: 7   # step-level timeout leaves 1 min for cleanup
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
